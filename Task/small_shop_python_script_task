@@ -1,0 +1,23 @@
+Prepare script to manage small shop payee records aligned with the staff.
+
+Feature:
+1: Shop owner can add new staff member.
+2: Shop owner can add stocks details (like product 1 - price - quantity)
+	2.a : Single stock upload
+	2.b : bulk stock upload through excel file
+3: Order table:
+	3.a : Shop owner can add multiple order details (like product 1 - selled price - sold quantity) through file
+ 	3.b : shop staff can add single order detail (like product 1 - selled price - sold quantity)
+4: Shop owner can able to show daily sales report and able to download it in excel file.
+	4.a : report should have daily profit and loss summary
+	4.b : remaining stocks details
+5: live dashboard of remaining stocks
+	
+Notes:
+
+1: user json file to store all this data
+2: this functionality should run within single file
+3: user all previous learnings topic and oops concept to design file structure
+
+o = C:\Users\chira\Desktop\Pysquad\Task\bulk_orders.xlsx
+s = C:\Users\chira\Desktop\Pysquad\Task\bulk_stock.xlsx

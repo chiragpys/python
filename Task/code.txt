@@ -1,0 +1,413 @@
+import json
+import pandas as pd
+from datetime import date
+
+
+class Create_user:
+    def __init__(self):
+        self.user_data = self.load_user()
+        self.current_user = None
+        self.current_shop = None
+        self.current_shop_id = None
+
+    def load_user(self):
+        try:
+            with open('user_data.json', 'r') as file:
+                data = json.load(file)
+                return data
+        except FileNotFoundError:
+            return {
+                'user': [],
+                'shop_name': [],
+                'staff': [],
+            }
+
+    def save_data(self):
+        with open('user_data.json', 'w') as file:
+            json.dump(self.user_data, file, indent=4)
+
+    def create_user(self):
+        id = int(input("Enter id: "))
+        username = input("Enter username: ")
+        for i in self.user_data['user']:
+            if i['id'] == id:
+                print("This user id already registered.,")
+                break
+        else:
+            user = {
+                'id': id,
+                'username': username,
+            }
+            self.user_data['user'].append(user)
+            self.save_data()
+
+    def authenticate_user(self, id):
+        for user in self.user_data['user']:
+            if user['id'] == id:
+                self.current_user = user['username']
+                return True
+        return False
+
+    def add_shop(self):
+        print("Do you become a partner ? (Yes or No)(Y/N).")
+        partner = input("Enter Y/N : ").lower()
+        if partner == 'n':
+            shop_id = int(input("Enter shop id: "))
+            shop_name = input("Enter Shop name: ")
+            for i in self.user_data['shop_name']:
+                if i['shop_id'] == shop_id:
+                    print("This shop id already registered.,")
+                    break
+            else:
+                owner_id = 0
+                for i in self.user_data['user']:
+                    if i['username'] == self.current_user:
+                        owner_id = i['id']
+                        break
+                shop = {
+                    'shop_id': shop_id,
+                    'shop_name': shop_name,
+                    'owner_id': owner_id,
+                }
+                self.user_data['shop_name'].append(shop)
+                self.save_data()
+                print(f"Shop {shop_name} add successful..")
+
+        elif partner == 'y':
+            shop_id = int(input("Enter shop id: "))
+            shop_name = input("Enter Shop name: ")
+
+            partner_id = set()
+            paetners_id = []
+            while True:
+                p_id = int(input("Enter partner id (0 to finish): "))
+                if p_id == 0:
+                    break
+                partner_id.add(p_id)
+
+            for i in self.user_data['shop_name']:
+                if i['shop_id'] == shop_id:
+                    print("This shop id already registered.,")
+                    break
+            else:
+                owner_id = 0
+                for i in self.user_data['user']:
+                    if i['username'] == self.current_user and i['id'] in partner_id:
+                        print("This is owner you can NOT to be partner..")
+                        break
+
+                    elif i['username'] == self.current_user:
+                        owner_id = i['id']
+
+                    elif partner_id is not None:
+                        for j in partner_id:
+                            if i['id'] == j:
+                                paetners_id.append(j)
+
+                if not paetners_id:
+                    print("Partner Id NOT match.. ")
+
+                else:
+                    shop = {
+                        'shop_id': shop_id,
+                        'shop_name': shop_name,
+                        'owner_id': owner_id,
+                        'partner_id': paetners_id
+                    }
+                    self.user_data['shop_name'].append(shop)
+                    self.save_data()
+                    print(f"Shop {shop_name} add successful and with {len(paetners_id)} partners")
+
+    def add_staff(self):
+        id = int(input("Enter id: "))
+        name = input("Enter Staffname: ")
+        for i in self.user_data['staff']:
+            if i['id'] == id:
+                print("This id already registered.,")
+                break
+        else:
+            owner_id = 0
+            for i in self.user_data['user']:
+                if i['username'] == self.current_user:
+                    owner_id = i['id']
+                    break
+            staff_name = {
+                'id': id,
+                'staff_name': name,
+                'owner_id': owner_id,
+            }
+            self.user_data['staff'].append(staff_name)
+            self.save_data()
+            print(f"Staff {name} member add successful")
+
+    def get_shop(self):
+        owner_id = 0
+        for user in self.user_data['user']:
+            if user['username'] == self.current_user:
+                owner_id = user['id']
+        for j in self.user_data['shop_name']:
+            if "partner_id" in j and owner_id in j["partner_id"]:
+                print(f"shop_id: {j['shop_id']}, shop_name: {j['shop_name']}")
+            elif 'owner_id' in j and owner_id == j['owner_id']:
+                print(f"shop_id: {j['shop_id']}, shop_name: {j['shop_name']}")
+
+    def authenticate_shop(self, shop_id):
+        owner_id = 0
+        for user in self.user_data['user']:
+            if user['username'] == self.current_user:
+                owner_id = user['id']
+
+        for shop in self.user_data['shop_name']:
+            if "partner_id" in shop and owner_id in shop["partner_id"]:
+                if shop['shop_id'] == shop_id:
+                    self.current_shop = shop['shop_name']
+                    self.current_shop_id = shop['shop_id']
+                    return True
+            elif 'owner_id' in shop and owner_id == shop['owner_id']:
+                if shop['shop_id'] == shop_id:
+                    self.current_shop = shop['shop_name']
+                    self.current_shop_id = shop['shop_id']
+                    return True
+        return False
+
+
+class Stock(Create_user):
+    def __init__(self):
+        super().__init__()
+        self.stock_data = self.load_stock()
+
+    def load_stock(self):
+        try:
+            with open('stock.json', 'r') as file:
+                data = json.load(file)
+                return data
+        except FileNotFoundError:
+            return {
+                'stocks': [],
+            }
+
+    def save_stock_data(self):
+        with open('stock.json', 'w') as file:
+            json.dump(self.stock_data, file, indent=4)
+
+    def add_single_stock(self):
+        username = self.current_user
+        today = date.today().strftime("%d-%m-%Y")
+        product = input("Enter stock name: ")
+        price = float(input("Enter stock price: "))
+        quantity = int(input("Enter stock quantity: "))
+        self.stock_data['stocks'].append({
+            'Username': username,
+            'Date': today,
+            'Product': product,
+            'Price': price,
+            'Quantity': quantity
+        })
+        self.save_stock_data()
+        print(f"Stock '{product}' added successfully.")
+
+    def add_bulk_stock(self, filepath):
+        try:
+            username = self.current_user
+            df = pd.read_excel(filepath)
+            for index, row in df.iterrows():
+                b_date = row['Date']
+                b_product = row['Product']
+                b_price = row['Price']
+                b_quantity = row['Quantity']
+                self.stock_data['stocks'].append({
+                    'Username': username,
+                    'Date': str(b_date),
+                    'Product': b_product,
+                    'Price': b_price,
+                    'Quantity': b_quantity
+                })
+                self.save_stock_data()
+            print("Bulk stock upload successful...!")
+        except Exception as e:
+            print(e)
+
+
+class Order(Stock):
+    def __init__(self):
+        super().__init__()
+        self.order_data = self.load_order()
+
+    def load_order(self):
+        try:
+            with open('order.json', 'r') as file:
+                data = json.load(file)
+                return data
+        except FileNotFoundError:
+            return {
+                'orders': [],
+            }
+
+    def save_order_data(self):
+        with open('order.json', 'w') as file:
+            json.dump(self.order_data, file, indent=4)
+
+    def add_single_order(self):
+        name = input("Enter a staff name:")
+        for i in self.user_data['staff']:
+            for j in self.user_data['user']:
+                if j['id'] == i['id']:
+                    if i['staff_name'] == name:
+                        username = name
+                        today = date.today().strftime("%d-%m-%Y")
+                        product = input("Enter order name: ")
+                        price = float(input("Enter order price: "))
+                        quantity = int(input("Enter order quantity: "))
+                        self.order_data['orders'].append({
+                            'Username': username,
+                            'Date': today,
+                            'Product': product,
+                            'Price': price,
+                            'Quantity': quantity
+                        })
+                        self.save_order_data()
+                        print(f"Order '{product}' added successfully.")
+                    else:
+                        print("No Staff member.")
+                else:
+                    print("No Staff member..")
+
+    def add_bulk_order(self, filepath):
+        try:
+            username = self.current_user
+            df = pd.read_excel(filepath)
+            for index, row in df.iterrows():
+                o_date = row['Date']
+                o_product = row['Product']
+                o_price = row['Price']
+                o_quantity = row['Quantity']
+                self.order_data['orders'].append({
+                    'Username': username,
+                    'Date': str(o_date),
+                    'Product': o_product,
+                    'Price': o_price,
+                    'Quantity': o_quantity
+                })
+                self.save_order_data()
+            print("Bulk orders upload successful...!")
+        except Exception as e:
+            print(e)
+
+    def display_order(self):
+        total_profit = 0
+        for order in self.order_data['orders']:
+            for stock in self.stock_data['stocks']:
+                if order['product'] == stock['product']:
+                    profit = (order['price'] - stock['price']) * order['quantity']
+                    total_profit += profit
+                    stock['quantity'] -= order['quantity']
+                    break
+
+
+if __name__ == "__main__":
+    shop = Order()
+
+
+    def shop_manu():
+
+        while True:
+            print("\n=== Shop Management ===")
+            print("1. Shop Owner add stocks details")
+            print("2. Order table")
+            print("3. Logout")
+
+            choice = input("Enter a number: ")
+
+            if choice == '1':
+                print("A. Single stock upload")
+                print("B. Bulk stock upload through (excel file)")
+
+                sub_choice = input("Enter a your option (A-B): ")
+                if sub_choice == "A":
+                    shop.add_single_stock()
+
+                elif sub_choice == "B":
+                    path = input("Enter excel file path: ")
+                    shop.add_bulk_stock(path)
+                else:
+                    print("Invalid choice. Please try again")
+
+            elif choice == "2":
+                print("A. Shop owner add multiple order details(excel file)")
+                print("B. Shop staff add single order detail")
+
+                sub_choice = input("Enter a your option (A-B): ")
+
+                if sub_choice == "A":
+                    path = input("Enter excel file path: ")
+                    shop.add_bulk_order(path)
+
+                elif sub_choice == "B":
+                    shop.add_single_order()
+
+                else:
+                    print("Invalid choice. Please try again")
+
+            elif choice == "3":
+                shop.current_shop = None
+                shop.current_shop_id = None
+                break
+            else:
+                print("Invalid choice. Please try again")
+
+
+    def main():
+
+        while True:
+            print("\n=== Shop Management ===")
+            print("1. Add new shop ")
+            print("2. Add new staff member")
+            print("3. Show Shop")
+            print("4. Logout")
+
+            choice = input("Enter a number: ")
+
+            if choice == '1':
+                shop.add_shop()
+
+            elif choice == '2':
+                shop.add_staff()
+
+            elif choice == '3':
+                shop.get_shop()
+                id = int(input("Enter shop id into login shop: "))
+                if shop.authenticate_shop(id):
+                    print(f"Login shop id '{shop.current_shop_id}' '{shop.current_shop}' successful.")
+                    shop_manu()
+                else:
+                    print('Invalid shop id.')
+
+            elif choice == "4":
+                shop.current_user = None
+                break
+            else:
+                print("Invalid choice. Please try again")
+
+
+    while True:
+        print("\n=== Shop Management ===")
+        print("1. Create user")
+        print("2. Login")
+        print("0. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            shop.create_user()
+
+        elif choice == '2':
+            id = int(input("Enter id: "))
+            if shop.authenticate_user(id):
+                print(f"Login {shop.current_user} successful.")
+                main()
+            else:
+                print('Invalid user.')
+
+        elif choice == '0':
+            break
+        else:
+            print('Invalid choice. Please try again')

@@ -1,0 +1,96 @@
+{
+    "user": [
+        {
+            "id": 1,
+            "username": "chirag"
+        },
+        {
+            "id": 2,
+            "username": "vivek"
+        },
+        {
+            "id": 3,
+            "username": "vishal"
+        }
+    ],
+    "shop_name": [
+        {
+            "shop_id": 1,
+            "shop_name": "Big",
+            "owner_id": 1
+        },
+        {
+            "shop_id": 2,
+            "shop_name": "Big",
+            "owner_id": 1,
+            "partner_id": [
+                2,
+                3
+            ]
+        }
+    ],
+    "staff": [
+        {
+            "id": 1,
+            "staff_name": "vishal",
+            "owner_id": 1
+        },
+        {
+            "id": 2,
+            "staff_name": "ronak",
+            "owner_id": 1
+        }
+    ],
+    "stocks": [
+        {
+            "ShopId": 1,
+            "OwnerId": 1,
+            "StockId": 1,
+            "Date": "2023-05-23",
+            "Product": "Tea",
+            "Price": 94,
+            "Quantity": 0
+        },
+        {
+            "ShopId": 1,
+            "OwnerId": 1,
+            "StockId": 2,
+            "Date": "2023-05-24",
+            "Product": "Coffee",
+            "Price": 22,
+            "Quantity": 86
+        },
+        {
+            "ShopId": 1,
+            "OwnerId": 1,
+            "StockId": 3,
+            "Date": "2023-05-25",
+            "Product": "Tea",
+            "Price": 92,
+            "Quantity": 88
+        }
+    ],
+    "orders": [
+        {
+            "ShopId": 1,
+            "OwnerId": 1,
+            "OrderId": 1,
+            "Date": "2023-05-26",
+            "Product": "Tea",
+            "Price": 100,
+            "Quantity": 130,
+            "from_stock": [{1:120}, {3:10}]
+        },
+        {
+            "ShopId": 1,
+            "OwnerId": 1,
+            "OrderId": 2,
+            "Date": "2023-05-24",
+            "Product": "Coffee",
+            "Price": 30,
+            "Quantity": 50
+        }
+    ],
+    "next_stock_id": 4,
+    "next_order_id": 3
+}
